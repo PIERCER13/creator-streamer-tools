@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="piercer" />
+  <title>Creator &amp; Streamer Toolkit</title>
+  <meta name="description" content="Suíte gratuita para criadores e streamers: Gerador de QR Code, Compressor de Imagens em Lote e Overlay de Metas/Timer para OBS." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+</head>
+<body>
+  <!-- OBS Clean Overlay Mode (activated via ?obs=1) -->
+  <div id="obsOnlyRoot" class="obs-only-root" hidden>
+    <div id="obsWidgetLive" class="obs-widget"></div>
+  </div>
+
+  <div id="appRoot">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">⚡</div>
+          <div>
+            <h1>Creator &amp; Streamer Toolkit</h1>
+            <p class="subtitle">QR Code customizado, compressor de imagens em lote e overlay para OBS</p>
+          </div>
+        </div>
+        <nav class="nav-pills" role="tablist">
+          <button class="pill active" data-tab="qr">QR Code</button>
+          <button class="pill" data-tab="img">Compressor de Imagens</button>
+          <button class="pill" data-tab="obs">Overlay OBS</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container main-wrap">
+      <!-- TAB 1: QR CODE -->
+      <section id="tab-qr" class="panel active">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Gerador de QR Code</h2>
+            <p class="muted">Crie QR Codes personalizados para seu Discord, Twitch, PIX ou portfólio.</p>
+            <div class="field">
+              <label for="qrText">URL ou Texto</label>
+              <input id="qrText" class="input" type="text" value="https://github.com/" placeholder="https://..." />
+            </div>
+            <div class="row-3">
+              <div class="field">
+                <label for="qrFg">Cor do Código</label>
+                <input id="qrFg" class="color-input" type="color" value="#0f172a" />
+              </div>
+              <div class="field">
+                <label for="qrBg">Fundo</label>
+                <input id="qrBg" class="color-input" type="color" value="#ffffff" />
+              </div>
+              <div class="field">
+                <label for="qrSize">Tamanho (px)</label>
+                <select id="qrSize" class="input">
+                  <option value="256">256 × 256</option>
+                  <option value="512" selected>512 × 512</option>
+                  <option value="1024">1024 × 1024</option>
+                </select>
+              </div>
+            </div>
+            <button id="downloadQrBtn" class="btn btn-primary" type="button">Baixar PNG</button>
+          </div>
+
+          <div class="card center-card">
+            <canvas id="qrCanvas" width="300" height="300"></canvas>
+            <span id="qrStatus" class="micro-note">Preview em tempo real</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: IMAGE COMPRESSOR -->
+      <section id="tab-img" class="panel">
+        <div class="card">
+          <div class="header-row">
+            <div>
+              <h2>Redimensionador &amp; Compressor em Lote</h2>
+              <p class="muted">Processado 100% no seu navegador — ideal para thumbnails, emotes e READMEs.</p>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button id="downloadAllZipBtn" class="btn btn-primary" style="background:#22c55e; color:#04150e;" type="button" hidden>Baixar Tudo (.zip)</button>
+              <label class="btn btn-primary upload-btn">
+                Selecionar Imagens
+                <input id="imgInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
+              </label>
+            </div>
+          </div>
+
+          <div class="row-3 controls-bar">
+            <div class="field">
+              <label for="imgFormat">Formato de Saída</label>
+              <select id="imgFormat" class="input">
+                <option value="image/webp" selected>WebP (mais leve)</option>
+                <option value="image/jpeg">JPEG</option>
+                <option value="image/png">PNG</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="imgMaxWidth">Largura Máxima (px)</label>
+              <input id="imgMaxWidth" class="input mono" type="number" min="100" max="4096" value="1280" />
+            </div>
+            <div class="field">
+              <label for="imgQuality">Qualidade: <span id="imgQualityVal" class="mono">82%</span></label>
+              <input id="imgQuality" type="range" min="10" max="100" value="82" />
+            </div>
+          </div>
+
+          <div id="dropZone" class="drop-zone">
+            Arraste suas imagens aqui ou clique em <strong>Selecionar Imagens</strong>
+          </div>
+
+          <div id="imgResults" class="img-results"></div>
+        </div>
+      </section>
+
+      <!-- TAB 3: OBS OVERLAY -->
+      <section id="tab-obs" class="panel">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Configurador de Overlay para OBS</h2>
+            <p class="muted">Configure abaixo e copie o link para adicionar como <strong>Browser Source</strong> no OBS.</p>
+
+            <div class="field">
+              <label for="obsType">Tipo de Widget</label>
+              <select id="obsType" class="input">
+                <option value="goal">Barra de Meta (Subs / Seguidores)</option>
+                <option value="timer">Cronômetro Regressivo (Starting Soon)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="obsTitle">Título</label>
+              <input id="obsTitle" class="input" type="text" value="Meta de Seguidores" />
+            </div>
+
+            <div id="obsGoalFields" class="row-2">
+              <div class="field">
+                <label for="obsCurrent">Atual</label>
+                <input id="obsCurrent" class="input mono" type="number" value="68" min="0" />
+              </div>
+              <div class="field">
+                <label for="obsTarget">Meta</label>
+                <input id="obsTarget" class="input mono" type="number" value="100" min="1" />
+              </div>
+            </div>
+
+            <div id="obsTimerFields" class="field" hidden>
+              <label for="obsMinutes">Duração (minutos)</label>
+              <input id="obsMinutes" class="input mono" type="number" value="5" min="1" max="180" />
+            </div>
+
+            <div class="field">
+              <label for="obsAccent">Cor de Destaque</label>
+              <input id="obsAccent" class="color-input" type="color" value="#a855f7" />
+            </div>
+
+            <div class="field">
+              <label for="obsUrlOut">URL para o OBS (Browser Source)</label>
+              <div class="copy-row">
+                <input id="obsUrlOut" class="input mono" type="text" readonly />
+                <button id="copyObsUrlBtn" class="btn btn-primary" type="button">Copiar</button>
+              </div>
+            </div>
+
+            <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <label style="font-size:0.82rem; font-weight:600; color:#cbd5e1;">Presets Salvos</label>
+                <button id="saveObsPresetBtn" class="btn btn-primary" style="padding:0.35rem 0.7rem; font-size:0.78rem;" type="button">+ Salvar Preset</button>
+              </div>
+              <div id="obsPresetsList" style="display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+            </div>
+          </div>
+
+          <div class="card center-card obs-preview-bg">
+            <span class="micro-note" style="margin-bottom: 1rem;">Preview sobre fundo transparente</span>
+            <div id="obsPreviewWidget" class="obs-widget"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+  <script src='../piercer_i18n.js'></script>
+</body>
+</html>
