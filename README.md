@@ -18,6 +18,8 @@ QR Code customizado, compressor de imagens em lote e overlay para OBS
 
 ## Arquivos do Projeto
 
+- `.git`
+- `.gitattributes`
 - `app.js`
 - `index.html`
 - `README.md`
