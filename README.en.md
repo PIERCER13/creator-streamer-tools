@@ -2,12 +2,12 @@
 
 # Creator & Streamer Toolkit
 
-QR Code customizado, compressor de imagens em lote e overlay para OBS
+QR Code customizado, compressor of images in batch and overlay for OBS
 
 ## Features
 
-- **Main Sections**: Gerador de QR Code, Redimensionador & Compressor em Lote, Configurador de Overlay para OBS
-- **Available Actions**: QR Code, Compressor de Imagens, Overlay OBS, Baixar PNG, Baixar Tudo (.zip), Copiar, + Salvar Preset
+- **Main Sections**: generator of QR Code, Redimensionador & compressor in batch, Configurador of Overlay for OBS
+- **Available Actions**: QR Code, compressor of images, Overlay OBS, download PNG, download Tudo (.zip), copy, + save Preset
 - **Auto-Save**: automatically persists changes in the browser (`localStorage`).
 - **Multi-Language**: built-in language switcher (`PT / EN / ES`).
 
@@ -22,6 +22,7 @@ QR Code customizado, compressor de imagens em lote e overlay para OBS
 - `.gitattributes`
 - `app.js`
 - `index.html`
+- `piercer_i18n.js`
 - `README.md`
 - `start.bat`
 - `styles.css`
